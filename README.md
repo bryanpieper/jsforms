@@ -1,7 +1,9 @@
 Django JavaScript forms app -- jsforms
 =======================================
 
-Integrates the Django Forms with the Javascript frontend with ease.
+Integrates the Django Forms with the Javascript frontend with ease. The goal of this app is to provide
+the JSON submissions without any changes to the existing Django Forms and minimal changes to the views
+that incorporate it.
 
 Installation
 ------------
