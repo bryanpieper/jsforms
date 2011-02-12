@@ -1,4 +1,4 @@
-Django JavaScript forms apps -- jsforms
+Django JavaScript forms app -- jsforms
 =======================================
 
 Integrates the Django Forms with the Javascript frontend with ease.
