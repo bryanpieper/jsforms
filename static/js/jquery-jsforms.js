@@ -2,7 +2,7 @@
  * Django jsforms jQuery plugin
  * http://www.thepiepers.net/
  *
- * This plugin enables the JSON integration the Django forms and the frontend.
+ * This plugin enables the JSON integration between the Django forms and the frontend.
  * 
  * Usage:
  *  <script type="text/javascript">
