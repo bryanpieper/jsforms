@@ -26,7 +26,7 @@
 		// 
 		// To hook into the success callback, provide a function instance as part
 		// of the options named 'success'
-		//  $("form").jsform({'success': function() { console.log("completed request") }});
+		//  $("form").jsform({'requestSuccess': function() { console.log("completed request") }});
 		var settings = {
 			method: "POST",
 			async: false,
