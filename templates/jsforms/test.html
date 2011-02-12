@@ -1,0 +1,42 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="utf-8"> 
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.5.min.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-jsforms.js"></script>
+    <style type="text/css">
+    .error {
+        color:red;
+    }
+    .error input {
+        border: 1px solid red;
+    }
+    </style>
+</head>
+<body>
+
+
+<img id="loader" style="display:none;" src="{{ MEDIA_URL }}img/loader_wt.gif" />
+
+<form action="{% url jsforms:test %}" method="post">
+    
+    {# Django 1.2.5 requires the CSRF even for ajax POST #}
+    {% csrf_token %}
+    
+    {{ form.non_field_errors }}
+    {% for field in form.visible_fields %}
+        <div class="{{ field.name }} field {% if field.errors %}error{% endif %} {% if field.field.required %}required{% endif %}">
+            {{ field.errors }}
+            {{ field.label_tag }} {{ field }}
+        </div>
+    {% endfor %}
+    {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+    <input type="submit" value="Submit"  />
+</form>
+
+<script type="text/javascript">
+$("form").jsform();
+</script>
+
+</body>
+</html>
