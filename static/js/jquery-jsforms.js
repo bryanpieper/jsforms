@@ -29,7 +29,7 @@
 		//  $("form").jsform({'requestSuccess': function() { console.log("completed request") }});
 		var settings = {
 			method: "POST",
-			async: false,
+			async: true,
 			dataType: "json",
 			url: undefined,
 			cache: false,
@@ -53,8 +53,8 @@
 				$.extend(settings, options);
 			}
 			
-			var $form = $(this);
-			var actionUrl = (settings.url !== undefined ? settings.url : $form.attr("action"));
+			var $jsform = $(this);
+			var actionUrl = (settings.url !== undefined ? settings.url : $jsform.attr("action"));
 			if (!actionUrl) {
 				if (typeof console !== "undefined") {
 					console.log("Form does not have an 'action' attribute");
@@ -77,8 +77,10 @@
 			};
 			
 			// Attach the submit event to the form
-			$form.submit(function() {
+			$jsform.submit(function() {
 				loader.show();
+				 
+				var $form = $(this);
 				
 				if (typeof settings.preSubmit !== "undefined") {
 					settings.preSubmit($form);
@@ -89,8 +91,13 @@
 					
 					if (typeof settings.errorHandler === "undefined") {
 						// Removes any leftover error elements
-						$form.children(".error").removeClass("error").find("ul").remove();
-						$form.children("ul.errorlist").remove();
+						$form.find(".error").removeClass("error").find("ul").remove();
+						$form.find("ul.errorlist").remove();
+					}
+					
+					// Call the requestSuccess if Ajax call succeeded
+					if (typeof settings.requestSuccess !== "undefined") {
+						settings.requestSuccess(data);
 					}
 
 					if (typeof data.errors !== "undefined" && data.errors) {
@@ -99,7 +106,7 @@
 							// Creates the error elements and adds appropriate .error 
 							// classes to the form
 							// 
-							//  <div class=".field_name .field">
+							//  <div class="field_name field">
 							//    <ul>
 							//      <li>error msg 1</li>
 							//      <li>error msg 2</li>
@@ -123,9 +130,10 @@
 									ul.className = "errorlist";
 									$form.children().first().before(ul);
 								} else {
-									$form.children("." + e).addClass("error").children("label").before(ul);
+									$form.find("." + e).addClass("error").children("label").before(ul);
 								}
 							}
+							
 						} else {
 							// call the errorHandler for each field with errors
 							for (var e in data.errors) {
@@ -133,21 +141,25 @@
 							}							
 						}
 						
+						// focus first error field
+						$form.find(".error input:first").focus();
+						
 					} else {
 						if (typeof settings.successHandler === "undefined") {
 							// Call the redirect if available
 							if (typeof data.redirect && data.redirect) {
-								window.location.href = data.redirect;
+								// fire redirect after slight delay
+								setTimeout(
+									function() {
+										window.location.href = data.redirect;
+									}, 300
+								); 
 							}
+							
 						} else {
 							// Call the successHanlder if no errors
 							settings.successHandler(data);
 						}
-					}
-					
-					// Call the requestSuccess if Ajax call succeeded
-					if (typeof settings.requestSuccess !== "undefined") {
-						settings.requestSuccess(data);
 					}
 					
 					loader.hide();
@@ -156,8 +168,17 @@
 				// Handles the unsuccessful response from the webserver
 				var errorCallback = function(obj) {
 					loader.hide();
+					
+					// clear out errors
+					$form.find(".error").removeClass("error").find("ul").remove();
+					$form.find("ul.errorlist").remove();
 					if (typeof settings.requestError !== "undefined") {
 						settings.requestError(obj);
+					} else {
+						$("#req-error").remove();
+						$form.first().before("<p id='req-error' class='error request-error'>We were unable to process the request " +
+							" due to a server error. If this error persists, please contact us.</p>");
+						
 					}
 				};
 				
