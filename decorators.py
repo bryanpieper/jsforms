@@ -51,7 +51,7 @@ from functools import wraps
 
 from jsforms.http import JsonResponse
 
-from django.forms import Form
+from django.forms import Form, ModelForm
 from django.conf import settings
 from django.http import HttpResponse
 
@@ -82,25 +82,28 @@ def jsform(**jsonargs):
             try:
                 res = f(request, *args, **kwargs)
             except:
-                import sys
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                error = dict(type=str(exc_type), value=str(exc_value))
-                if settings.DEBUG:
-                    import traceback
-                    from cStringIO import StringIO
-                    stack_buf = StringIO()
-                    traceback.print_tb(exc_traceback, file=stack_buf)
-                    error.update(dict(stack=stack_buf.getvalue(), request=str(request)))
-                return JsonResponse(dict(error=error), jsonargs, status=500)
+                if request.is_ajax():
+                    import sys
+                    exc_type, exc_value, exc_traceback = sys.exc_info()
+                    error = dict(type=str(exc_type), value=str(exc_value))
+                    if settings.DEBUG:
+                        import traceback
+                        from cStringIO import StringIO
+                        stack_buf = StringIO()
+                        traceback.print_tb(exc_traceback, file=stack_buf)
+                        error.update(dict(stack=stack_buf.getvalue(), request=str(request)))
+                    return JsonResponse(dict(error=error), jsonargs, status=500)
+                else:
+                    raise
             else:
                 # only check the response if the request is_ajax
                 if request.is_ajax():
                     result = res or {}
                     
                     # extract the errors from the form instance 
-                    if isinstance(res, Form):
+                    if isinstance(res, Form) or isinstance(res, ModelForm):
                         errors = res.errors
-                        result = JsonResponse(dict(errors=errors), jsonargs)
+                        result = JsonResponse(dict(errors=errors, error_count=len(errors)), jsonargs)
                     
                     # wraps the result if not a typical response instance
                     elif not isinstance(res, HttpResponse):
