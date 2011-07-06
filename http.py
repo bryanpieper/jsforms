@@ -22,23 +22,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 """
-
 import json
 from django.http import HttpResponse
 
-
 class JsonResponse(HttpResponse):
     """
-    Basic JSON response. The first argument must be serializable. The optional 2nd argument
-    is a dict containing one or more the available options for the json.dumps() method.
-    
-    See: http://docs.python.org/library/json.html
-    """
+Basic JSON response. The first argument must be serializable. The optional 2nd argument
+is a dict containing one or more the available options for the json.dumps() method.
+See: http://docs.python.org/library/json.html
+"""
     def __init__(self, data, json_kwargs={}, *args, **kwargs):
         if 'mimetype' in kwargs:
             kwargs.pop('mimetype')
         _json_kwargs = json_kwargs or {}
-        super(JsonResponse, self).__init__(content=json.dumps(data, **_json_kwargs), 
+        super(JsonResponse, self).__init__(content=json.dumps(data, **_json_kwargs),
                                            mimetype='application/json',
-                                           *args, 
+                                           *args,
                                            **kwargs)
